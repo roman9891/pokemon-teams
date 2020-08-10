@@ -1,50 +1,41 @@
-// ## Requirements
-// - When a user loads the page, they should see all
-//   trainers, with their current team of Pokemon.
-// - Whenever a user hits `Add Pokemon` and they have
-//   space on their team, they should get a new Pokemon.
-// - Whenever a user hits `Release Pokemon` on a specific
-//   Pokemon team, that specific Pokemon should be released from
-//   the team.
 const BASE_URL = "http://localhost:3000"
 const TRAINERS_URL = `${BASE_URL}/trainers`
 const POKEMONS_URL = `${BASE_URL}/pokemons`
 
 document.addEventListener(`DOMContentLoaded`, e => {
     const main = document.querySelector(`main`)
-    const renderPokemon = (pokemon) => {
-        const pokemonLi = document.createElement(`li`)
-        pokemonLi.innerHTML = `${pokemon.nickname} (${pokemon.species}) <button class="release">Release</button>`
-        pokemonLi.dataset.id = pokemon.id
-    }
     
     document.addEventListener(`click`, e => {
+        
         if (e.target.matches(`.add-pokemon-btn`)) {
             const targetTrainerCard = e.target.parentNode
             const targetPokemonList = targetTrainerCard.querySelector(`ul`)
+
             if (targetTrainerCard.dataset.pokemonQty < 6) {
                 fetch(POKEMONS_URL, {
                     method: `POST`,
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({trainer_id: targetTrainerCard.dataset.trainerId})
                 })
-                    .then(r => r.json())
-                    .then(pokemon => {
-                        //refactored
-                        const pokemonLi = document.createElement(`li`)
-                        pokemonLi.innerHTML = `${pokemon.nickname} (${pokemon.species}) <button class="release">Release</button>`
-                        pokemonLi.dataset.id = pokemon.id
-                        targetPokemonList.append(pokemonLi)
-                        targetTrainerCard.dataset.pokemonQty++
-                    })
+                .then(r => r.json())
+                .then(pokemon => {
+                    const pokemonLi = document.createElement(`li`)
+                    pokemonLi.innerHTML = `${pokemon.nickname} (${pokemon.species}) <button class="release">Release</button>`
+                    pokemonLi.dataset.id = pokemon.id
+                    targetPokemonList.append(pokemonLi)
+                    targetTrainerCard.dataset.pokemonQty++
+                })
             } 
         } else if (e.target.matches(`.release`)) {
-            console.log(e.target.parentNode)
             const targetPokemonLi = e.target.parentNode
+            const targetTrainerCard = targetPokemonLi.parentNode.parentNode
             fetch(POKEMONS_URL + `/${targetPokemonLi.dataset.id}`, {
                 method: `DELETE`
             })
-            .then(() => targetPokemonLi.remove())
+            .then(() => {
+                targetTrainerCard.dataset.pokemonQty -= 1
+                targetPokemonLi.remove()
+            })
         }
     })
     
