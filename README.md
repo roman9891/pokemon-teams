@@ -34,7 +34,7 @@ A Pokemon Card can be placed within the `<main>` tags.
 </div>
 ```
 
-## API
+## API 
 We are going to be using a Rails backend to support our requests. In order to have this working, 
 you want to make sure you go to your Terminal and run the following code below:
 
